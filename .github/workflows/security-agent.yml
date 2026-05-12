@@ -164,7 +164,7 @@ jobs:
               echo "Scanning file -> $file"
               echo "========================================="
 
-              talisman --scanWithFilename "$file" || TALISMAN_FAILED=1
+              talisman --scan --pattern="$file" || TALISMAN_FAILED=1
 
             fi
 
