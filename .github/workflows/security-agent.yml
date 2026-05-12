@@ -186,7 +186,9 @@ jobs:
           fi
 
           echo ""
-          echo "✅ TALISMAN SECRET SCAN PASSED"  # 3. SEMGREP SAST SCAN
+          echo "✅ TALISMAN SECRET SCAN PASSED" 
+  ################################################################
+  # 3. SEMGREP SAST SCAN
   #################################################################
 
   semgrep-security-scan:
