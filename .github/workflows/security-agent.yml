@@ -177,6 +177,11 @@ jobs:
           if [ "$TALISMAN_FAILED" -eq 1 ]; then
 
             echo ""
+            echo "============= TALISMAN REPORT ============="
+
+            find talisman_report -type f | xargs cat
+
+            echo ""
             echo "❌ TALISMAN SECRET SCAN FAILED"
 
             exit 1
