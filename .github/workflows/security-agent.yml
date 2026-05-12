@@ -16,6 +16,7 @@ jobs:
   validate-domain-policy:
 
     name: Validate Commit Domains
+
     runs-on: ubuntu-latest
 
     steps:
@@ -25,6 +26,16 @@ jobs:
       #############################################################
 
       - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      #############################################################
+      # Validate Commit Email Domains
+      #############################################################
+
+      - name: Validate Commit Email Domains
+
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
@@ -33,7 +44,7 @@ jobs:
           # Allowed Domains
           #########################################################
 
-          ALLOWED_DOMAINS: "gmail.com usefulbi.com @users.noreply.github.com"
+          ALLOWED_DOMAINS: "gmail.com usefulbi.com users.noreply.github.com"
 
         run: |
 
@@ -41,6 +52,9 @@ jobs:
 
           EMAILS=$(git log ${BASE_SHA}..${HEAD_SHA} \
           --pretty=format:'%ae')
+
+          echo "Emails Found:"
+          echo "$EMAILS"
 
           INVALID_FOUND=0
 
@@ -63,6 +77,10 @@ jobs:
 
           done
 
+          #########################################################
+          # Block PR if Invalid Domain Found
+          #########################################################
+
           if [ "$INVALID_FOUND" -eq 1 ]; then
 
             echo ""
@@ -74,6 +92,7 @@ jobs:
 
           echo ""
           echo "✅ DOMAIN VALIDATION SUCCESSFUL"
+          
   #################################################################
   # 2. TALISMAN SECRET SCAN
   #################################################################
