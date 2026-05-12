@@ -141,45 +141,40 @@ jobs:
 
           git diff --name-only origin/main...HEAD > changed_files.txt
 
-          mkdir talisman-temp
+          echo ""
+          echo "Files identified for scanning:"
+          cat changed_files.txt
+
+          #########################################################
+          # Initialize Failure Flag
+          #########################################################
+
+          TALISMAN_FAILED=0
+
+          #########################################################
+          # Scan Each Changed File
+          #########################################################
 
           while read file; do
 
             if [ -f "$file" ]; then
 
-              mkdir -p "talisman-temp/$(dirname "$file")"
+              echo ""
+              echo "========================================="
+              echo "Scanning file -> $file"
+              echo "========================================="
 
-              cp "$file" "talisman-temp/$file"
+              talisman --scanWithFilename "$file" || TALISMAN_FAILED=1
 
             fi
 
           done < changed_files.txt
 
-          echo "Files copied for scanning:"
-          find talisman-temp -type f
-
-          cd talisman-temp
-
           #########################################################
-          # Execute Talisman
+          # Final Validation
           #########################################################
 
-          talisman --scan || true
-
-          #########################################################
-          # Print Report
-          #########################################################
-
-          echo ""
-          echo "============= TALISMAN REPORT ============="
-
-          find talisman_report -type f | xargs cat
-
-          #########################################################
-          # Detect Actual Findings
-          #########################################################
-
-          if grep -R '"filecontent":[1-9]' talisman_report > /dev/null; then
+          if [ "$TALISMAN_FAILED" -eq 1 ]; then
 
             echo ""
             echo "❌ TALISMAN SECRET SCAN FAILED"
