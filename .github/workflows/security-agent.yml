@@ -164,19 +164,18 @@ jobs:
           # Execute Talisman
           #########################################################
 
-          #########################################################
-          # Execute Talisman Scan
-          #########################################################
-
-          TALISMAN_OUTPUT=$(talisman --scan 2>&1)
-
-          echo "$TALISMAN_OUTPUT"
+          talisman --scan || true
 
           #########################################################
-          # Detect Secret Findings
+          # Check Findings
           #########################################################
 
-          if echo "$TALISMAN_OUTPUT" | grep -qi "Potential secret pattern"; then
+          if [ -d "talisman_report" ]; then
+
+            echo ""
+            echo "============= TALISMAN REPORT ============="
+
+            find talisman_report -type f | xargs cat
 
             echo ""
             echo "❌ TALISMAN SECRET SCAN FAILED"
@@ -186,7 +185,7 @@ jobs:
           fi
 
           echo ""
-          echo "✅ TALISMAN SECRET SCAN PASSED" 
+          echo "✅ TALISMAN SECRET SCAN PASSED"
   ################################################################
   # 3. SEMGREP SAST SCAN
   #################################################################
