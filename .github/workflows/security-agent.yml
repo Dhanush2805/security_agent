@@ -167,15 +167,19 @@ jobs:
           talisman --scan || true
 
           #########################################################
-          # Check Findings
+          # Print Report
           #########################################################
 
-          if [ -d "talisman_report" ]; then
+          echo ""
+          echo "============= TALISMAN REPORT ============="
 
-            echo ""
-            echo "============= TALISMAN REPORT ============="
+          find talisman_report -type f | xargs cat
 
-            find talisman_report -type f | xargs cat
+          #########################################################
+          # Detect Actual Findings
+          #########################################################
+
+          if grep -R '"filecontent":[1-9]' talisman_report > /dev/null; then
 
             echo ""
             echo "❌ TALISMAN SECRET SCAN FAILED"
