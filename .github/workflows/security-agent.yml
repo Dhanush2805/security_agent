@@ -187,8 +187,7 @@ jobs:
           
           echo "============= TALISMAN REPORT ============="
           
-          find talisman_report -type f | xargs cat
-
+          find talisman-temp/talisman_report -type f | xargs cat
   #################################################################
   # 3. SEMGREP SAST SCAN
   #################################################################
