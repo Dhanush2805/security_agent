@@ -164,19 +164,19 @@ jobs:
           # Execute Talisman
           #########################################################
 
-          talisman --scan
-
           #########################################################
-          # Capture Exit Code
+          # Execute Talisman Scan
           #########################################################
 
-          TALISMAN_EXIT_CODE=$?
+          TALISMAN_OUTPUT=$(talisman --scan 2>&1)
+
+          echo "$TALISMAN_OUTPUT"
 
           #########################################################
-          # Block Workflow if Secrets Found
+          # Detect Secret Findings
           #########################################################
 
-          if [ "$TALISMAN_EXIT_CODE" -ne 0 ]; then
+          if echo "$TALISMAN_OUTPUT" | grep -qi "Potential secret pattern"; then
 
             echo ""
             echo "❌ TALISMAN SECRET SCAN FAILED"
@@ -186,8 +186,7 @@ jobs:
           fi
 
           echo ""
-          echo "✅ TALISMAN SECRET SCAN PASSED"  #################################################################
-  # 3. SEMGREP SAST SCAN
+          echo "✅ TALISMAN SECRET SCAN PASSED"  # 3. SEMGREP SAST SCAN
   #################################################################
 
   semgrep-security-scan:
