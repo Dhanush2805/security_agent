@@ -25,31 +25,55 @@ jobs:
       #############################################################
 
       - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      #############################################################
-      # Setup Python
-      #############################################################
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.10"
-
-      #############################################################
-      # Execute Domain Validation Agent
-      #############################################################
-
-      - name: Execute Domain Validation Agent
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
 
-        run: |
-          python scripts/check_domain.py
+          #########################################################
+          # Allowed Domains
+          #########################################################
 
+          ALLOWED_DOMAINS: "gmail.com usefulbi.com @users.noreply.github.com"
+
+        run: |
+
+          echo "Running Rule-Based Domain Agent"
+
+          EMAILS=$(git log ${BASE_SHA}..${HEAD_SHA} \
+          --pretty=format:'%ae')
+
+          INVALID_FOUND=0
+
+          for email in $EMAILS
+          do
+
+            DOMAIN=$(echo "$email" | cut -d'@' -f2)
+
+            if [[ " $ALLOWED_DOMAINS " =~ " $DOMAIN " ]]; then
+
+              echo "VALID EMAIL -> $email"
+
+            else
+
+              echo "INVALID EMAIL -> $email"
+
+              INVALID_FOUND=1
+
+            fi
+
+          done
+
+          if [ "$INVALID_FOUND" -eq 1 ]; then
+
+            echo ""
+            echo "❌ DOMAIN VALIDATION FAILED"
+
+            exit 1
+
+          fi
+
+          echo ""
+          echo "✅ DOMAIN VALIDATION SUCCESSFUL"
   #################################################################
   # 2. TALISMAN SECRET SCAN
   #################################################################
