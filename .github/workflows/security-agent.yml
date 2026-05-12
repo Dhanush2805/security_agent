@@ -159,7 +159,27 @@ jobs:
 
           cd talisman-temp
 
+          #########################################################
+          # Run Talisman Scan
+          #########################################################
+
           talisman --scan
+
+          #########################################################
+          # Validate Talisman Findings
+          #########################################################
+
+          if [ -d "talisman_report" ]; then
+
+            echo ""
+            echo "❌ TALISMAN DETECTED SECRETS"
+
+            exit 1
+
+          fi
+
+          echo ""
+          echo "✅ TALISMAN SECRET SCAN PASSED"
 
       - name: Print Talisman Report
         if: failure()
