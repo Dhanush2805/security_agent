@@ -452,6 +452,26 @@ jobs:
                 category: security 
                 confidence: HIGH 
                 impact: HIGH
+
+            #########################################################
+            # Path Traversal Risk
+            #########################################################
+
+            - id: path-traversal-risk
+
+              pattern: open("/tmp/" + ...)
+
+              message: "Potential Path Traversal vulnerability detected."
+
+              severity: ERROR
+
+              languages:
+                - python
+
+              metadata:
+                category: security
+                confidence: HIGH
+                impact: HIGH
                 
             #########################################################
             # Weak Hash Algorithms
