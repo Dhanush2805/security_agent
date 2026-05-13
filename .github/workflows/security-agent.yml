@@ -437,22 +437,21 @@ jobs:
             # SQL Injection Risk
             #########################################################
 
-            - id: sql-injection-risk
+
+            - id: sql-injection-fstring
 
               pattern: |
-                $QUERY = "SELECT * FROM users WHERE id=" + $INPUT
-                cursor.execute($QUERY)
+                cursor.execute(f"...{$VAR}...")
 
-              message: "Potential SQL Injection detected."
+              message: "Potential SQL Injection using Python f-string detected."
 
               severity: ERROR
 
               languages:
                 - python
-
-              metadata:
-                category: security
-                confidence: HIGH
+              metadata: 
+                category: security 
+                confidence: HIGH 
                 impact: HIGH
                 
             #########################################################
