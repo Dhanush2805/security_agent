@@ -440,14 +440,8 @@ jobs:
             - id: sql-injection-risk 
               patterns: 
                 - pattern-either: 
-                  ################################################# 
-                  # Direct Query Concatenation 
-                  ################################################# 
                   - pattern: | 
                       cursor.execute("..." + ...) 
-                  ################################################# 
-                  # Variable Based Query Concatenation 
-                  ################################################# 
                   - pattern: | 
                       $QUERY = "..." + ... 
                       ... 
