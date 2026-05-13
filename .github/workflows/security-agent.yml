@@ -416,8 +416,9 @@ jobs:
                 category: security
                 confidence: HIGH
                 impact: HIGH
-
-            Dangerous exec()
+                
+            #########################################################
+            #Dangerous exec()
             #########################################################
 
             - id: dangerous-exec-usage
@@ -431,9 +432,11 @@ jobs:
                 category: security 
                 confidence: HIGH 
                 impact: HIGH
+                
             ######################################################### 
             # SQL Injection Risk 
             ######################################################### 
+            
             - id: sql-injection-risk 
               pattern: | 
                 cursor.execute($QUERY + ...) 
@@ -445,6 +448,8 @@ jobs:
                 category: security 
                 confidence: HIGH 
                 impact: HIGH                
+
+                
             #########################################################
             # Weak Hash Algorithms
             #########################################################
