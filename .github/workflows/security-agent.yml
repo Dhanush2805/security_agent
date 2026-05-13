@@ -417,6 +417,34 @@ jobs:
                 confidence: HIGH
                 impact: HIGH
 
+            Dangerous exec()
+            #########################################################
+
+            - id: dangerous-exec-usage
+
+              pattern: exec(...) 
+              message: "exec() detected. Potential arbitrary code execution." 
+              severity: ERROR 
+              languages: 
+                - python 
+              metadata: 
+                category: security 
+                confidence: HIGH 
+                impact: HIGH
+            ######################################################### 
+            # SQL Injection Risk 
+            ######################################################### 
+            - id: sql-injection-risk 
+              pattern: | 
+                cursor.execute($QUERY + ...) 
+              message: "Potential SQL Injection detected." 
+              severity: ERROR 
+              languages: 
+                - python 
+              metadata: 
+                category: security 
+                confidence: HIGH 
+                impact: HIGH                
             #########################################################
             # Weak Hash Algorithms
             #########################################################
