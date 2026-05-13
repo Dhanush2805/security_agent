@@ -250,7 +250,40 @@ jobs:
           fi
 
           echo ""
-          echo "✅ Additional Secret Validation Passed"          
+          echo "✅ Additional Secret Validation Passed"   
+
+          #################################################
+          # Hardcoded Credential Detection
+          #################################################
+
+          if grep -RInE \
+            $EXCLUDED_DIRS \
+            '(password|passwd|pwd|secret|token|api_key|apikey|access_key|auth|credential)\s*=\s*["'\''][^"'\'']{6,}["'\'']' \
+            . ; then
+
+            echo ""
+            echo "❌ Hardcoded Credential Detected"
+
+            exit 1
+
+          fi
+
+          #################################################
+          # Generic Password Pattern Detection
+          #################################################
+          if grep -RInE \
+            $EXCLUDED_DIRS \
+            '["'\'']([A-Z][a-zA-Z]+[@#\$%!][0-9]{2,}|[Pp]assword[@#\$%!]?[0-9]+)["'\'']' \
+            . ; then
+
+            echo ""
+            echo "❌ Generic Password Pattern Detected"
+
+            exit 1
+
+          fi
+
+          
   ################################################################
   # 3. SEMGREP SAST SCAN
   #################################################################
