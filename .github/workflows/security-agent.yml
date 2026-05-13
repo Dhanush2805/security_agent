@@ -193,6 +193,61 @@ jobs:
 
           echo ""
           echo "✅ TALISMAN SECRET SCAN PASSED"
+
+      #########################################################
+      # Additional Custom Secret Checks
+      #########################################################
+
+      - name: Additional Custom Secret Checks
+
+        run: |
+
+          echo ""
+          echo "Running Additional Secret Validation..."
+
+          #####################################################
+          # Generic Password Detection
+          #####################################################
+
+          if grep -RinE '=\s*"Admin@[0-9A-Za-z]+"' .; then
+
+            echo ""
+            echo "❌ Generic Password Pattern Detected"
+
+            exit 1
+
+          fi
+
+          #####################################################
+          # JWT Detection
+          #####################################################
+
+          if grep -RinE 'eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+' .; then
+
+            echo ""
+            echo "❌ JWT Token Detected"
+
+            exit 1
+
+          fi
+
+          #####################################################
+          # Base64 High Entropy Detection
+          #####################################################
+
+          if grep -RinE '[A-Za-z0-9+/]{40,}={0,2}' .; then
+
+            echo ""
+            echo "❌ Suspicious Base64 Secret Detected"
+
+            exit 1
+
+          fi
+
+          echo ""
+          echo "✅ Additional Secret Validation Passed"          
+
+          
   ################################################################
   # 3. SEMGREP SAST SCAN
   #################################################################
