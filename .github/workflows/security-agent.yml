@@ -213,7 +213,9 @@ jobs:
           --exclude-dir=.github \
           --exclude-dir=node_modules \
           --exclude-dir=venv \
-          --exclude-dir=.venv"
+          --exclude-dir=.venv \
+          --exclude-dir=.idea \
+          --exclude-dir=__pycache__"
 
           #####################################################
           # JWT Token Detection
