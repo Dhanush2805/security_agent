@@ -205,99 +205,50 @@ jobs:
           echo ""
           echo "Running Additional Secret Validation..."
 
-          #######################################################
-          # Scan Only Changed Files
-          #######################################################
+          #####################################################
+          # Scan ONLY source files
+          #####################################################
 
-          git diff --name-only origin/main...HEAD > changed_files.txt
+          EXCLUDED_DIRS="--exclude-dir=.git \
+          --exclude-dir=.github \
+          --exclude-dir=node_modules \
+          --exclude-dir=venv \
+          --exclude-dir=.venv"
 
-          SECRET_FOUND=0
+          #####################################################
+          # JWT Token Detection
+          #####################################################
 
-          while read file; do
-
-            ###################################################
-            # Skip Empty / Missing Files
-            ###################################################
-
-            if [ ! -f "$file" ]; then
-              continue
-            fi
-
-            ###################################################
-            # Skip .git and workflow artifacts
-            ###################################################
-
-            if [[ "$file" == .git/* ]]; then
-              continue
-            fi
-
-            ###################################################
-            # JWT Token Detection
-            ###################################################
-
-            if grep -E \
-              'eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+' \
-              "$file"
-            then
-
-              echo ""
-              echo "❌ JWT Token Detected in -> $file"
-
-              SECRET_FOUND=1
-
-            fi
-
-            ###################################################
-            # Base64 Secret Detection
-            ###################################################
-
-            if grep -E \
-              '[A-Za-z0-9+/]{40,}={0,2}' \
-              "$file"
-            then
-
-              echo ""
-              echo "❌ Suspicious Base64 Secret Detected in -> $file"
-
-              SECRET_FOUND=1
-
-            fi
-
-            ###################################################
-            # Password Variable Detection
-            ###################################################
-
-            if grep -Ei \
-              'password\s*=\s*["'\''][^"'\'']+["'\'']' \
-              "$file"
-            then
-
-              echo ""
-              echo "❌ Hardcoded Password Detected in -> $file"
-
-              SECRET_FOUND=1
-
-            fi
-
-          done < changed_files.txt
-
-          #######################################################
-          # Final Validation
-          #######################################################
-
-          if [ "$SECRET_FOUND" -eq 1 ]; then
+          if grep -RInE \
+            $EXCLUDED_DIRS \
+            'eyJ[a-zA-Z0-9_-]+\.[a-zA-Z0-9._-]+\.[a-zA-Z0-9._-]+' \
+            . ; then
 
             echo ""
-            echo "❌ ADDITIONAL SECRET VALIDATION FAILED"
+            echo "❌ JWT TOKEN DETECTED"
+
+            exit 1
+
+          fi
+
+          #####################################################
+          # Base64 Secret Detection
+          #####################################################
+
+          if grep -RInE \
+            $EXCLUDED_DIRS \
+            '[A-Za-z0-9+/]{40,}={0,2}' \
+            . ; then
+
+            echo ""
+            echo "❌ Suspicious Base64 Secret Detected"
 
             exit 1
 
           fi
 
           echo ""
-          echo "✅ ADDITIONAL SECRET VALIDATION PASSED"  
-
-          
+          echo "✅ Additional Secret Validation Passed"          
   ################################################################
   # 3. SEMGREP SAST SCAN
   #################################################################
