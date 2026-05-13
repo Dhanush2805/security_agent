@@ -438,8 +438,20 @@ jobs:
             ######################################################### 
             
             - id: sql-injection-risk 
-              pattern: | 
-                cursor.execute($QUERY + ...) 
+              patterns: 
+                - pattern-either: 
+                    ################################################# 
+                    # Direct Query Concatenation 
+                    ################################################# 
+                    - pattern: | 
+                        cursor.execute("..." + ...) 
+                    ################################################# 
+                    # Variable Based Query Concatenation 
+                    ################################################# 
+                    - pattern: | 
+                        $QUERY = "..." + ... 
+                        ... 
+                        cursor.execute($QUERY) 
               message: "Potential SQL Injection detected." 
               severity: ERROR 
               languages: 
@@ -447,7 +459,7 @@ jobs:
               metadata: 
                 category: security 
                 confidence: HIGH 
-                impact: HIGH                
+                impact: HIGH              
 
                 
             #########################################################
