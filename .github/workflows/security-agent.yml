@@ -438,10 +438,9 @@ jobs:
             #########################################################
 
 
-            - id: sql-injection-fstring
+            - id: sql-injection-risk
 
-              pattern: |
-                cursor.execute(f"...{$VAR}...")
+              pattern: '"SELECT * FROM users WHERE name = ''" + ...'
 
               message: "Potential SQL Injection using Python f-string detected."
 
