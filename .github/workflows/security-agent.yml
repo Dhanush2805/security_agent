@@ -439,12 +439,11 @@ jobs:
 
             - id: sql-injection-risk
 
-              patterns:
-                - pattern-inside: |
-                    $QUERY = "SELECT * FROM users WHERE id=" + $INPUT 
-                    ... 
-                    cursor.execute($QUERY)
-              
+              pattern: |
+                $QUERY = "SELECT * FROM users WHERE id=" + $INPUT
+                ...
+                cursor.execute($QUERY)
+
               message: "Potential SQL Injection detected."
 
               severity: ERROR
