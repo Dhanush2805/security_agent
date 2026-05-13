@@ -237,7 +237,7 @@ jobs:
 
           if grep -RInE \
             $EXCLUDED_DIRS \
-            '[A-Za-z0-9+/]{40,}={0,2}' \
+            '[A-Za-z0-9+/]{20,}={0,2}' \
             . ; then
 
             echo ""
