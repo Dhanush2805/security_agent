@@ -441,7 +441,6 @@ jobs:
 
               pattern: |
                 $QUERY = "SELECT * FROM users WHERE id=" + $INPUT
-                ...
                 cursor.execute($QUERY)
 
               message: "Potential SQL Injection detected."
