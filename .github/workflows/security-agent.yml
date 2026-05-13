@@ -439,15 +439,7 @@ jobs:
 
             - id: sql-injection-risk
 
-              patterns:
-                - pattern-either:
-                    - pattern: |
-                        cursor.execute("..." + ...)
-
-                    - pattern: |
-                        $QUERY = "..." + ...
-                        ...
-                        cursor.execute($QUERY)
+              pattern: cursor.execute($QUERY)
 
               message: "Potential SQL Injection detected."
 
