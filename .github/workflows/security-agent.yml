@@ -132,14 +132,14 @@ jobs:
       # OPTIONAL: Install dependencies safely (non-blocking)
       # We allow failure so license scan still runs
       #################################################################
-      - name: Install Project Dependencies (Safe Mode)
-        continue-on-error: true
+      - name: Install Project Dependencies
         run: |
           if [ -f requirements.txt ]; then
-            echo "Installing dependencies (best effort)..."
-            pip install -r requirements.txt || true
+            echo "Installing dependencies..."
+            pip install -r requirements.txt
           else
             echo "No requirements.txt found"
+            exit 1
           fi
 
       #################################################################
@@ -150,7 +150,7 @@ jobs:
           echo "Generating license report..."
 
           pip list --format=json > installed_packages.json
-          pip-licenses --format=json > licenses.json || true
+          pip-licenses --format=json > licenses.json
 
           echo "Installed packages:"
           cat installed_packages.json
@@ -172,14 +172,14 @@ jobs:
           INVALID_FOUND=0
 
           # Safety check: ensure file exists
-          if [ ! -f licenses.json ]; then
-            echo "❌ licenses.json not found - failing build"
+          if [ ! -s licenses.json ]; then
+            echo "❌ licenses.json is empty or missing"
             exit 1
           fi
 
           # Check for restricted licenses
           for license in "${RESTRICTED_LICENSES[@]}"; do
-            if grep -i "\"$license\"" licenses.json; then
+            if grep -qi "\"License\":.*$license" licenses.json; then
               echo ""
               echo "❌ Restricted License Detected -> $license"
               INVALID_FOUND=1
