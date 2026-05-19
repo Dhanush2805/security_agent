@@ -44,7 +44,7 @@ jobs:
           # Allowed Domains
           #########################################################
 
-          ALLOWED_DOMAINS: "gmail.com usefulbi.com users.noreply.github.com"
+          ALLOWED_DOMAINS: "gmail.com usefulbi.com users.noreply.github.com yahoo.com"
 
         run: |
 
