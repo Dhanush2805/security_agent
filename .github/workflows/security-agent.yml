@@ -92,16 +92,74 @@ jobs:
 
           echo ""
           echo "✅ DOMAIN VALIDATION SUCCESSFUL"
+
+  #################################################################
+  # 2.   module-license-checker:
+  #################################################################          
+  module-license-checker:
+    name: Module License Compliance Checker
+
+    runs-on: ubuntu-latest
+
+    needs: validate-domain-policy
+
+    steps:
+
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install License Checker
+        run: pip install pip-licenses
+
+      - name: Install Project Dependencies
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo "No requirements.txt found"
+          fi
+
+      - name: Validate Package Licenses
+        run: |
+          echo "Running Module License Compliance Checker"
+
+          pip-licenses --format=json > licenses.json
+          cat licenses.json
+
+          RESTRICTED_LICENSES=("GPL" "AGPL" "LGPL")
+          INVALID_FOUND=0
+
+          for license in "${RESTRICTED_LICENSES[@]}"; do
+            if grep -i "$license" licenses.json; then
+              echo ""
+              echo "❌ Restricted License Detected -> $license"
+              INVALID_FOUND=1
+            fi
+          done
+
+          if [ "$INVALID_FOUND" -eq 1 ]; then
+            echo ""
+            echo "❌ MODULE LICENSE COMPLIANCE FAILED"
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ MODULE LICENSE COMPLIANCE SUCCESSFUL"      
           
   #################################################################
-  # 2. TALISMAN SECRET SCAN
+  # 3. TALISMAN SECRET SCAN
   #################################################################
 
   talisman-secret-scan:
 
     name: Talisman Secret Scan
 
-    needs: validate-domain-policy
+    needs: module-license-checker
 
     runs-on: ubuntu-latest
 
@@ -285,7 +343,7 @@ jobs:
 
           
   ################################################################
-  # 3. SEMGREP SAST SCAN
+  # 4. SEMGREP SAST SCAN
   #################################################################
 
   semgrep-security-scan:
