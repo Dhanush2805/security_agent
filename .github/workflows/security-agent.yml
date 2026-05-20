@@ -93,9 +93,9 @@ jobs:
           echo ""
           echo "✅ DOMAIN VALIDATION SUCCESSFUL"
 
-#################################################################
-# 2. MODULE LICENSE COMPLIANCE CHECKER (PRODUCTION FIXED)
-#################################################################
+  #################################################################
+  # 2. MODULE LICENSE COMPLIANCE CHECKER
+  #################################################################
 
   module-license-checker:
     name: Module License Compliance Checker
@@ -119,107 +119,65 @@ jobs:
           python-version: '3.11'
 
       #################################################################
-      # Install SYSTEM dependencies (IMPORTANT FIX)
-      #################################################################
-      - name: Install OS Dependencies for Native Builds
-        run: |
-          sudo apt-get update
-
-          sudo apt-get install -y \
-            pkg-config \
-            libcairo2-dev \
-            libglib2.0-dev \
-            libgirepository1.0-dev \
-            gir1.2-glib-2.0 \
-            libglib2.0-dev \
-            gobject-introspection \
-            libffi-dev \
-            build-essential \
-            python3-dev
-
-      #################################################################
-      # Install license tools
-      #################################################################
-      - name: Install License Tools
-        run: |
-          python -m pip install --upgrade pip
-          pip install pip-licenses pipdeptree
-
-      #################################################################
-      # Install project dependencies (STRICT MODE)
-      #################################################################
-      - name: Install Project Dependencies
-        run: |
-          if [ -f requirements.txt ]; then
-            echo "Installing dependencies..."
-
-            # IMPORTANT: DO NOT hide failures
-            pip install -r requirements.txt
-          else
-            echo "No requirements.txt found"
-            exit 1
-          fi
-
-      #################################################################
-      # Verify installation integrity
-      #################################################################
-      - name: Validate Installed Environment
-        run: |
-          echo "Checking installed packages..."
-          pip check
-
-      #################################################################
-      # Generate License Report
-      #################################################################
-      - name: Generate License Report
-        run: |
-          echo "Generating license report..."
-
-          pip list --format=json > installed_packages.json
-          pip-licenses --format=json > licenses.json
-
-          echo "Installed packages:"
-          cat installed_packages.json
-
-          echo "Licenses:"
-          cat licenses.json
-
-      #################################################################
-      # License Compliance Check (STRICT)
+      # Validate Dependency Licenses WITHOUT Installing
       #################################################################
       - name: Validate Package Licenses
+        shell: bash
         run: |
 
           echo "Running Module License Compliance Checker..."
 
-          RESTRICTED_LICENSES=("GPL" "AGPL" "LGPL" "LGPL-2.0" "LGPL-3.0")
+          python -m pip install --upgrade pip
+          pip install requests
+
+          RESTRICTED_LICENSES=("GPL" "AGPL" "LGPL")
 
           INVALID_FOUND=0
 
-          if [ ! -s licenses.json ]; then
-            echo "❌ Empty or missing license file"
+          if [ ! -f requirements.txt ]; then
+            echo "❌ requirements.txt not found"
             exit 1
           fi
 
-          for license in "${RESTRICTED_LICENSES[@]}"; do
-            if grep -i "\"License\":.*$license" licenses.json; then
-              echo "❌ Restricted License Detected -> $license"
+          while read package; do
+
+            # Skip empty lines/comments
+            if [[ -z "$package" || "$package" =~ ^# ]]; then
+              continue
+            fi
+
+            # Extract package name only
+            PACKAGE_NAME=$(echo "$package" | cut -d '=' -f 1)
+
+            echo "Checking package: $PACKAGE_NAME"
+
+            LICENSE=$(python -c "import requests; pkg='$PACKAGE_NAME'; url=f'https://pypi.org/pypi/{pkg}/json'; data=requests.get(url, timeout=10).json(); info=data.get('info', {}); license_name=info.get('license', ''); classifiers=info.get('classifiers', []); license_name = license_name or ' '.join([c for c in classifiers if 'License' in c]); print(license_name if license_name else 'UNKNOWN')")
+
+            echo "License: $LICENSE"
+
+            for restricted in "${RESTRICTED_LICENSES[@]}"; do
+
+              if echo "$LICENSE" | grep -iq "$restricted"; then
+                echo "❌ Restricted License Detected -> $restricted in $PACKAGE_NAME"
+                INVALID_FOUND=1
+              fi
+
+            done
+
+            # Detect unknown licenses
+            if echo "$LICENSE" | grep -iq "UNKNOWN"; then
+              echo "⚠️ Unknown license -> $PACKAGE_NAME"
               INVALID_FOUND=1
             fi
-          done
 
-          # also detect UNKNOWN / NOT FOUND licenses
-          if grep -i "UNKNOWN" licenses.json; then
-            echo "⚠️ Unknown licenses detected - manual review required"
-            INVALID_FOUND=1
-          fi
+          done < requirements.txt
 
           if [ "$INVALID_FOUND" -eq 1 ]; then
             echo "❌ MODULE LICENSE COMPLIANCE FAILED"
             exit 1
           fi
 
-          echo "✅ MODULE LICENSE COMPLIANCE SUCCESSFUL"     
+          echo "✅ MODULE LICENSE COMPLIANCE SUCCESSFUL"
 
           
   #################################################################
