@@ -140,7 +140,7 @@ jobs:
             exit 1
           fi
 
-          while read package; do
+          while IFS= read -r package || [ -n "$package" ]; do
 
             # Skip empty lines/comments
             if [[ -z "$package" || "$package" =~ ^# ]]; then
@@ -148,7 +148,7 @@ jobs:
             fi
 
             # Extract package name only
-            PACKAGE_NAME=$(echo "$package" | cut -d '=' -f 1)
+            PACKAGE_NAME=$(echo "$package" | sed 's/[<>=!].*//' | xargs)
 
             echo "Checking package: $PACKAGE_NAME"
 
