@@ -176,9 +176,7 @@ jobs:
 
           if [ "$RESTRICTED_FOUND" -eq 1 ]; then
 
-            echo "❌ MODULE LICENSE COMPLIANCE FAILED"
             echo "❌ Restricted licenses detected"
-            echo "❌ Pull Request will be BLOCKED"
 
             exit 1
 
@@ -186,8 +184,8 @@ jobs:
 
           if [ "$UNKNOWN_FOUND" -eq 1 ]; then
 
-            echo "⚠️ Unknown licenses detected"
-            echo "⚠️ Manual review recommended"
+            echo "❌ Restricted licenses detected"
+
 
           fi
 
