@@ -132,7 +132,8 @@ jobs:
 
           RESTRICTED_LICENSES=("GPL" "AGPL" "LGPL")
 
-          INVALID_FOUND=0
+          RESTRICTED_FOUND=0
+          UNKNOWN_FOUND=0
 
           if [ ! -f requirements.txt ]; then
             echo "❌ requirements.txt not found"
@@ -159,7 +160,7 @@ jobs:
 
               if echo "$LICENSE" | grep -iq "$restricted"; then
                 echo "❌ Restricted License Detected -> $restricted in $PACKAGE_NAME"
-                INVALID_FOUND=1
+                RESTRICTED_FOUND=1
               fi
 
             done
@@ -167,14 +168,28 @@ jobs:
             # Detect unknown licenses
             if echo "$LICENSE" | grep -iq "UNKNOWN"; then
               echo "⚠️ Unknown license -> $PACKAGE_NAME"
-              INVALID_FOUND=1
+              UNKNOWN_FOUND=1
             fi
 
           done < requirements.txt
 
-          if [ "$INVALID_FOUND" -eq 1 ]; then
+          echo "====================================="
+
+          if [ "$RESTRICTED_FOUND" -eq 1 ]; then
+
             echo "❌ MODULE LICENSE COMPLIANCE FAILED"
+            echo "❌ Restricted licenses detected"
+            echo "❌ Pull Request will be BLOCKED"
+
             exit 1
+
+          fi
+
+          if [ "$UNKNOWN_FOUND" -eq 1 ]; then
+
+            echo "⚠️ Unknown licenses detected"
+            echo "⚠️ Manual review recommended"
+
           fi
 
           echo "✅ MODULE LICENSE COMPLIANCE SUCCESSFUL"
