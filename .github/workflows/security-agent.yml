@@ -130,7 +130,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install requests
 
-          RESTRICTED_LICENSES=("GPL" "AGPL" "LGPL")
+          RESTRICTED_LICENSES=("GPL" "GPL-2.0" "GPL-3.0" "GNU General Public License" "AGPL" "AGPL-3.0" "Affero General Public License" "GNU Affero General Public License" "LGPL" "LGPL-2.0" "LGPL-2.1" "LGPL-3.0" "GNU Lesser General Public License" "SSPL" "Server Side Public License" "CPAL" "Common Public Attribution License" "EUPL" "European Union Public License" "OSL" "Open Software License" "Sleepycat License" "QPL" "Q Public License" "RPL" "Reciprocal Public License" "EPL-1.0" "Eclipse Public License 1.0" "MPL-1.1" "Mozilla Public License 1.1" "CC-BY-SA" "Creative Commons Attribution Share Alike" "Commons Clause" "PolyForm")
 
           RESTRICTED_FOUND=0
           UNKNOWN_FOUND=0
