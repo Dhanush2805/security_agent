@@ -152,7 +152,7 @@ jobs:
 
             echo "Checking package: $PACKAGE_NAME"
 
-            LICENSE=$(python -c "import requests; pkg='$PACKAGE_NAME'; url=f'https://pypi.org/pypi/{pkg}/json'; data=requests.get(url, timeout=10).json(); info=data.get('info', {}); license_name=(info.get('license') or '').strip(); classifiers=info.get('classifiers', []); licenses=[c.split('::')[-1].strip() for c in classifiers if 'License' in c]; final_license=license_name if license_name else ', '.join(licenses); print(final_license if final_license else 'UNKNOWN')")
+            LICENSE=$(python -c "import requests; pkg='$PACKAGE_NAME'; data=requests.get(f'https://pypi.org/pypi/{pkg}/json', timeout=10).json(); info=data.get('info', {}); license_name=(info.get('license') or '').strip(); classifiers=info.get('classifiers', []); licenses=[c.split('::')[-1].strip() for c in classifiers if 'License ::' in c]; final_license=license_name if license_name else ', '.join(licenses); print(final_license if final_license else 'UNKNOWN')")
             echo "License: $LICENSE"
 
             for restricted in "${RESTRICTED_LICENSES[@]}"; do
