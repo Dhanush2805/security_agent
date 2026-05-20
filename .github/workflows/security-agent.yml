@@ -152,7 +152,7 @@ jobs:
 
             echo "Checking package: $PACKAGE_NAME"
 
-            LICENSE=$(python -c "from importlib.metadata import metadata; pkg='$PACKAGE_NAME'; m=metadata(pkg); print(m.get('License') or ' '.join([v for k,v in m.items() if k=='Classifier' and 'License' in v]) or 'UNKNOWN')")
+            LICENSE=$(python -c "import requests; pkg='$PACKAGE_NAME'; data=requests.get(f'https://pypi.org/pypi/{pkg}/json', timeout=10).json(); info=data.get('info', {}); classifiers=info.get('classifiers', []); licenses=[c for c in classifiers if 'License ::' in c]; print(' | '.join(licenses) if licenses else 'UNKNOWN')")
             echo "License: $LICENSE"
 
             for restricted in "${RESTRICTED_LICENSES[@]}"; do
