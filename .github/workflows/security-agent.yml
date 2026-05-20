@@ -153,8 +153,7 @@ jobs:
             #################################################################
             # FIXED: SAFE INLINE PYTHON (NO IMPORT ISSUES / NO MULTILINE)
             #################################################################
-            LICENSE=$(python -c "import requests; pkg='$PACKAGE_NAME'; data=requests.get(f'https://pypi.org/pypi/{pkg}/json', timeout=10).json(); info=data.get('info', {}); spdx=info.get('license_expression'); classifiers=info.get('classifiers', []); cls=[c for c in classifiers if 'License ::' in c]; result=spdx or (' | '.join(cls) if cls else 'UNKNOWN'); print(result)")
-
+            LICENSE=$(python -c "import requests; pkg='$PACKAGE_NAME'; data=requests.get(f'https://pypi.org/pypi/{pkg}/json', timeout=10).json(); info=data.get('info', {}); spdx=info.get('license_expression'); raw=info.get('license'); classifiers=info.get('classifiers', []); cls=[c for c in classifiers if 'License ::' in c]; result=spdx or raw or (' | '.join(cls) if cls else 'UNKNOWN'); print(result)")
             echo "License: $LICENSE"
 
             #################################################################
